@@ -1,0 +1,462 @@
+block-object:
+  allOf:
+    - $ref: 'Common.yaml#/notion-object'
+    - type: object
+      properties:
+        parent:
+          $ref: 'Common.yaml#/parent/parent-object'
+        created_time:
+          type: string
+          format: date-time
+        last_edited_time:
+          type: string
+          format: date-time
+        created_by:
+          $ref: 'User.yaml#/user-object'
+        last_edited_by:
+          $ref: 'User.yaml#/user-object'
+        archived:
+          type: boolean
+          default: false
+        has_children:
+          type: boolean
+          default: false
+        type:
+          $ref: 'Common.yaml#/enums/block-types'
+  discriminator:
+    propertyName: type
+    mapping:
+      paragraph: '#/block-type/paragraph-block'
+      heading_1: '#/block-type/heading_1-block'
+      heading_2: '#/block-type/heading_2-block'
+      heading_3: '#/block-type/heading_3-block'
+      bulleted_list_item: '#/block-type/bulleted-list-item-block'
+      numbered_list_item: '#/block-type/numbered-list-item-block'
+      to_do: '#/block-type/to-do-block'
+      toggle: '#/block-type/toggle-block'
+      child_page: '#/block-type/child-page-block'
+      child_database: '#/block-type/child-database-block'
+      embed: '#/block-type/embed-block'
+      image: '#/block-type/image-block'
+      video: '#/block-type/video-block'
+      file: '#/block-type/file-block'
+      pdf: '#/block-type/pdf-block'
+      bookmark: '#/block-type/bookmark-block'
+      callout: '#/block-type/callout-block'
+      quote: '#/block-type/quote-block'
+      equation: '#/block-type/equation-block'
+      divider: '#/block-type/divider-block'
+      table_of_contents: '#/block-type/table-of-contents-block'
+      column: '#/block-type/column-block'
+      column_list: '#/block-type/column-list-block'
+      link_preview: '#/block-type/link-preview-block'
+      synced_block: '#/block-type/synced-block-block'
+      template: '#/block-type/template-block'
+      link_to_page: '#/block-type/link-to-page-block'
+      table: '#/block-type/table-block'
+      table_row: '#/block-type/table-row-block'
+      unsupported: '#/block-type/'
+  externalDocs:
+    url: https://developers.notion.com/reference/block
+
+
+common:
+  text-and-color-block:
+    properties:
+      rich_text:
+        type: array
+        items: 
+          $ref: 'Common.yaml#/rich_text-object'
+      color:
+        $ref: 'Common.yaml#/enums/colors'
+  children-block:
+    properties:
+      children:
+        type: array
+        items:
+          $ref: '#/block-object'
+  children-text-and-color-block:
+    allOf:
+      - $ref: '#/common/text-and-color-block'
+      - $ref: '#/common/children-block'
+
+block-type:
+  embed-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          embed:
+            type: object
+            properties:
+              url:
+                type: string
+                format: uri
+  paragraph-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          type:
+            default: paragraph
+          paragraph:
+            $ref: '#/common/children-text-and-color-block'
+  heading_1-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          type:
+            default: heading_1
+          heading_1:
+            $ref: '#/block-type/heading-block-object'
+  heading_2-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          type:
+            default: heading_2
+          heading_2:
+            $ref: '#/block-type/heading-block-object'
+  heading_3-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          type:
+            default: heading_3
+          heading_3:
+            $ref: '#/block-type/heading-block-object'
+  heading-block-object:
+    allOf:
+      - $ref: '#/common/text-and-color-block'
+      - type: object
+        properties:
+          is_toggleable:
+            type: boolean
+  callout-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          type:
+            default: callout
+          callout:
+            allOf:
+              - $ref: '#/common/children-text-and-color-block'
+              - type: object
+            properties:
+              icon:
+                $ref: 'Common.yaml#/icon-object'
+  quote-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          quote:
+            allOf:
+              - $ref: '#/common/children-text-and-color-block'
+              - type: object
+  bulleted-list-item-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          bulleted_list_item:
+            allOf:
+              - $ref: '#/common/children-text-and-color-block'
+              - type: object
+  numbered-list-item-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          numbered_list_item:
+            allOf:
+              - $ref: '#/common/children-text-and-color-block'
+              - type: object
+  to-do-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          to_do:
+            allOf:
+              - $ref: '#/common/children-text-and-color-block'
+              - type: object
+            properties:
+              checked:
+                type: boolean
+                default: false
+  toggle-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          toggle:
+            allOf:
+              - $ref: '#/common/children-text-and-color-block'
+              - type: object
+  code-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          code:
+            properties:
+              rich_text:
+                type: array
+                items: 
+                  $ref: 'Common.yaml#/rich_text-object'
+              caption:
+                type: array
+                items: 
+                  $ref: 'Common.yaml#/rich_text-object'
+              language:
+                $ref: 'Common.yaml#/enums/code-languages' 
+  child-page-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          child_page:
+            type: object
+            properties:
+              title:
+                type: string
+  child-database-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          child_database:
+            type: object
+            properties:
+              title:
+                type: string
+  image-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          image:
+            $ref: 'Common.yaml#/file/file-object'
+  video-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          video:
+            $ref: 'Common.yaml#/file/file-object'
+  file-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          file:
+            type: object
+            properties:
+            file:
+              $ref: 'Common.yaml#/file/file-object'
+            caption:
+              type: array
+              items:
+                $ref: 'Common.yaml#/rich_text-object'
+  pdf-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          pdf:
+            $ref: 'Common.yaml#/file/file-object'
+  bookmark-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          bookmark:
+            type: object
+            properties:
+            url:
+              type: string
+              format: uri
+            caption:
+              type: array
+              items:
+                $ref: 'Common.yaml#/rich_text-object'
+  equation-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          equation:
+            type: object
+            properties:
+              expression:
+                type: string
+  divider-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          divider:
+            type: object
+  breadcrumb-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          breadcrumb:
+            type: object
+  table-of-contents-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          table_of_contents:
+            type: object
+            properties:
+              color:
+                $ref: 'Common.yaml#/enums/colors'
+  column-list-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          column_list:
+            type: object
+            properties:
+              children:
+                type: array
+                items:
+                  $ref: '#/block-type/column-block'
+  column-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          column:
+            $ref: '#/common/children-block'
+  link-preview-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          link_preview:
+            type: object
+            properties:
+              url:
+                type: string
+                format: uri
+  template-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          template:
+            allOf:
+              - $ref: '#/common/children-block'
+              - type: object
+                properties:
+                  rich_text:
+                    type: array
+                    items: 
+                      $ref: 'Common.yaml#/rich_text-object'
+  link-to-page-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          link_to_page:
+            $ref: '#/page-link/page-link-object'
+  synced-block-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          synced_block:
+              allOf:
+                - $ref: '#/common/children-block'
+                - type: object
+                  properties:
+                    synced_from:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - block_id
+                        block_id:
+                          $ref: 'Common.yaml#/id/id-type'
+  table-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          table:
+            type: object
+            properties:
+              table_width:
+                type: number
+                minimum: 1
+                default: 1
+              has_column_header:
+                type: boolean
+                default: false
+              has_row_header:
+                type: boolean
+                default: false
+              children:
+                type: array
+                items:
+                  $ref: '#/block-type/table-row-block'
+                minItems: 1
+  table-row-block:
+    allOf:
+      - $ref: '#/block-object'
+      - type: object
+        properties:
+          table_row:
+            type: object
+            properties:
+              cells:
+                type: array
+                items: 
+                  $ref: 'Common.yaml#/rich_text-object'
+                minItems: 1
+
+page-link:
+  page-link-object:
+    discriminator:
+      propertyName: type
+      mapping:
+        page_id: '#/page-link/page-link'
+        database_id: '#/page-link/db-link'
+    properties:
+      type:
+        type: string
+        enum:
+          - page_id
+          - database_id
+  page-link:
+    allOf:
+      - $ref: '#/page-link/page-link-object'
+      - type: object
+    properties:
+      type:
+        default: page_id
+      page_id:
+        $ref: 'Common.yaml#/id/id-type'
+  db-link:
+    allOf:
+      - $ref: '#/page-link/page-link-object'
+      - type: object
+    properties:
+      type:
+        default: database_id
+      database_id:
+        $ref: 'Common.yaml#/id/id-type'
+    
+  
+        

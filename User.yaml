@@ -1,0 +1,59 @@
+user-object:
+  description: Shared properties for all User Types
+  allOf:
+    - $ref: 'Common.yaml#/notion-object'
+    - type: object
+  discriminator:
+    propertyName: type
+    mapping:
+      person: '#/person-object'
+      bot: '#/bot-object'
+  properties:
+    object:
+      default: user
+    name:
+      type: string
+    avatar_url:
+      type: string
+      format: uri
+      nullable: true
+    type:
+      type: string
+      enum:
+        - person
+        - bot
+  externalDocs:
+    url: https://developers.notion.com/reference/user
+
+person-object:
+  description: Person type of user-object
+  allOf:
+  - $ref: '#/user-object'
+  - type: object
+  properties:
+    type:
+      default: person
+    person:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: true
+          
+bot-object:
+  description: Bot type of user-object
+  allOf:
+  - $ref: '#/user-object'
+  - type: object
+  properties:
+    type:
+      default: bot
+    bot:
+      type: object
+      properties:
+        owner:
+          $ref: 'Common.yaml#/owner/owner-object'            
+        workspace_name:
+          type: string
+          nullable: true

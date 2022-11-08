@@ -1,0 +1,442 @@
+page-object:
+  allOf:
+    - $ref: 'Common.yaml#/notion-object'
+    - type: object
+      properties:
+        object:
+          default: page
+          readOnly: true
+        created_time:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          allOf:
+            - $ref: 'User.yaml#/user-object'
+          readOnly: true
+        last_edited_time:
+          type: string
+          format: date-time
+          readOnly: true
+        last_edited_by:
+          allOf:
+            - $ref: 'User.yaml#/user-object'
+          readOnly: true
+        archived:
+          type: boolean
+        icon:
+          $ref: 'Common.yaml#/icon-object'
+        cover:
+          $ref: 'Common.yaml#/file/external-file-object'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/page-properties/property-value'
+        parent:
+          $ref: 'Common.yaml#/parent/parent-object'
+        url:
+          type: string
+          format: uri
+          readOnly: true
+
+page-properties:
+  property-value:
+    type: object
+    required:
+      - id
+      - type
+    discriminator:
+      propertyName: type
+      mapping:
+        rich_text: '#/page-properties/rich_text-property-value'
+        number: '#/page-properties/number-property-value'
+        select: '#/page-properties/select-property-value'
+        multi_select: '#/page-properties/multi_select-property-value'
+        status: '#/page-properties/status-property-value'
+        date: '#/page-properties/date-property-value'
+        formula: '#/page-properties/formula-property-value'
+        relation: '#/page-properties/relation-property-value'
+        rollup: '#/page-properties/rollup-property-value'
+        title: '#/page-properties/title-property-value'
+        people: '#/page-properties/people-property-value'
+        files: '#/page-properties/files-property-value'
+        checkbox: '#/page-properties/checkbox-property-value'
+        url: '#/page-properties/url-property-value'
+        email: '#/page-properties/email-property-value'
+        phone_number: '#/page-properties/phone_number-property-value'
+        created_time: '#/page-properties/created_time-property-value'
+        created_by: '#/page-properties/created_by-property-value'
+        last_edited_time: '#/page-properties/last_edited_time-property-value'
+        last_edited_by: '#/page-properties/last_edited_by-property-value'
+    properties:
+      id:
+        type: string
+      type:
+        $ref: 'Common.yaml#/enums/property-types'
+  rich_text-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: rich_text
+        rich_text:
+          type: array
+          items:
+            $ref: 'Common.yaml#/rich_text-object'
+  number-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: number
+        number:
+          type: number
+  select-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: select
+        select:
+          $ref: 'Common.yaml#/select-object'
+  multi_select-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: multi_select
+        multi_select:
+          type: array
+          items:
+            $ref: 'Common.yaml#/select-object'
+  status-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: status
+        status:
+          $ref: 'Common.yaml#/select-object'
+  date-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: date
+        date:
+          $ref: 'Common.yaml#/date-object'
+  formula-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: formula
+        formula:
+          $ref: '#/page-properties/formula-property-value-object'
+
+  formula-property-value-object:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        string: '#/page-properties/string-formula-property-value'
+        number: '#/page-properties/number-formula-property-value'
+        boolean: '#/page-properties/boolean-formula-property-value'
+        date: '#/page-properties/date-formula-property-value'
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+        enum:
+          - string
+          - number
+          - boolean
+          - date
+  string-formula-property-value:
+    allOf:
+      - $ref: '#/page-properties/formula-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: string
+          string:
+            type: string
+  number-formula-property-value:
+    allOf:
+      - $ref: '#/page-properties/formula-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: number
+          number:
+            type: number
+  boolean-formula-property-value:
+    allOf:
+      - $ref: '#/page-properties/formula-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: boolean
+          boolean:
+            type: boolean
+  date-formula-property-value:
+    allOf:
+      - $ref: '#/page-properties/formula-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: date
+          date:
+            $ref: '#/page-properties/date-property-value'
+
+  relation-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: relation
+        relation:
+          $ref: 'Common.yaml#/id/id-reference'
+        has_more:
+          type: boolean
+          
+  rollup-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        type:
+          default: rollup
+        rollup:
+          $ref: '#/page-properties/rollup-property-value-object'
+  rollup-property-value-object:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        string: '#/page-properties/string-rollup-property-value'
+        number: '#/page-properties/number-rollup-property-value'
+        date: '#/page-properties/date-rollup-property-value'
+        array: '#/page-properties/array-rollup-property-value'
+    properties:
+      type:
+        type: string
+        enum:
+          - string
+          - number
+          - date
+          - array
+      function:
+        type: string
+        enum:
+          - count
+          - count_values
+          - empty
+          - not_empty
+          - unique
+          - show_unique
+          - percent_empty
+          - percent_not_empty
+          - sum
+          - average
+          - median
+          - min
+          - max
+          - range
+          - earliest_date
+          - latest_date
+          - date_range
+          - checked
+          - unchecked
+          - percent_checked
+          - percent_unchecked
+          - count_per_group
+          - percent_per_group
+          - show_original
+  string-rollup-property-value:
+    allOf:
+      - $ref: '#/page-properties/rollup-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: string
+          string:
+            type: string
+  number-rollup-property-value:
+    allOf:
+      - $ref: '#/page-properties/rollup-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: number
+          number:
+            type: number
+  date-rollup-property-value:
+    allOf:
+      - $ref: '#/page-properties/rollup-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: date
+          date:
+            $ref: '#/page-properties/date-property-value'
+  array-rollup-property-value:
+    allOf:
+      - $ref: '#/page-properties/rollup-property-value-object'
+      - type: object
+        properties:
+          type:
+            default: array
+          results:
+            type: array
+            items:
+              oneOf:
+                - $ref: '#/page-properties/string-rollup-property-value'
+                - $ref: '#/page-properties/number-rollup-property-value'
+                - $ref: '#/page-properties/date-rollup-property-value'
+
+  title-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        title:
+          type: array
+          items:
+            $ref: 'Common.yaml#/rich_text-object'
+  people-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        people:
+          type: array
+          items:
+            $ref: 'User.yaml#/user-object'
+  files-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: 'Common.yaml#/file/file-object'
+  checkbox-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        checkbox:
+          type: boolean
+  url-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        url:
+          type: string
+          format: uri
+  email-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        email:
+          type: string
+          format: email
+  phone_number-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        phone_number:
+          type: string
+  created_time-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        created_time:
+          type: string
+          format: date-time
+  created_by-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        created_by:
+          $ref: 'User.yaml#/user-object'
+  last_edited_time-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        last_edited_time:
+          type: string
+          format: date-time
+  last_edited_by-property-value:
+    allOf:
+    - $ref: '#/page-properties/property-value'
+    - type: object
+      properties:
+        last_edited_by:
+          $ref: 'User.yaml#/user-object'
+
+page-property-items:
+  single-property-item:
+    allOf:
+      - $ref: '#/page-properties/property-value'
+      - type: object
+        properties:
+          object:
+            type: string
+            enum:
+              - property_item
+            default: property_item
+
+  paginated-property-item:
+    allOf:
+      - oneOf:
+        - $ref: '#/page-properties/title-property-value'
+        - $ref: '#/page-properties/rich_text-property-value'
+        - $ref: '#/page-properties/relation-property-value'
+        - $ref: '#/page-properties/people-property-value'
+      - type: object
+        properties:
+          next_url:
+            type: string
+            nullable: true
+            format: uri
+    description: The title, rich_text, relation and people property items of are returned as a paginated list object of individual property_item objects in the results
+  paginated-property-list:
+    allOf:
+      - $ref: 'Notion.yaml#/components/schemas/paginated-results'
+      - type: object
+        properties:
+          object:
+            type: string
+            enum:
+              - list
+            default: list
+          results:
+            type: array
+            items:
+              $ref: '#/page-property-items/single-property-item'
+          property_item:
+            $ref: '#/page-property-items/paginated-property-item'
+          type:
+            type: string
+            enum:
+              - property_item
+            default: property_item
+    

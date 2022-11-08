@@ -1,0 +1,132 @@
+database-object:
+  allOf:
+    - $ref: 'Common.yaml#/notion-object'
+    - type: object
+      properties:
+        object:
+          default: database
+          readOnly: true
+        created_time:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          allOf:
+            - $ref: 'User.yaml#/user-object'
+          readOnly: true
+        last_edited_time:
+          type: string
+          format: date-time
+          readOnly: true
+        last_edited_by:
+          allOf:
+            - $ref: 'User.yaml#/user-object'
+          readOnly: true
+        archived:
+          type: boolean
+        icon:
+          $ref: 'Common.yaml#/icon-object'
+        cover:
+          $ref: 'Common.yaml#/file/external-file-object'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/page-properties/property-value'
+        parent:
+          $ref: 'Common.yaml#/parent/parent-object'
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        is_inline:
+          type: boolean
+          default: false
+        title:
+          type: array
+          items:
+            $ref: 'Common.yaml#/rich_text-object'
+        description:
+          type: array
+          items:
+            $ref: 'Common.yaml#/rich_text-object'
+
+db-properties:
+  property-object:
+    type: object
+    properties:
+      type:
+        $ref: 'Common.yaml#/enums/property-types'
+      id:
+        type: string
+      name:
+        type: string
+    discriminator:
+      propertyName: type
+      mapping:
+        rich_text: '#/db-properties/rich_text-property-value'
+        number: '#/db-properties/number-property-value'
+        select: '#/db-properties/select-property-value'
+        multi_select: '#/db-properties/multi_select-property-value'
+        status: '#/db-properties/status-property-value'
+        date: '#/db-properties/date-property-value'
+        formula: '#/db-properties/formula-property-value'
+        relation: '#/db-properties/relation-property-value'
+        rollup: '#/db-properties/rollup-property-value'
+        title: '#/db-properties/title-property-value'
+        people: '#/db-properties/people-property-value'
+        files: '#/db-properties/files-property-value'
+        checkbox: '#/db-properties/checkbox-property-value'
+        url: '#/db-properties/url-property-value'
+        email: '#/db-properties/email-property-value'
+        phone_number: '#/db-properties/phone_number-property-value'
+        created_time: '#/db-properties/created_time-property-value'
+        created_by: '#/db-properties/created_by-property-value'
+        last_edited_time: '#/db-properties/last_edited_time-property-value'
+        last_edited_by: '#/db-properties/last_edited_by-property-value'
+  number-property-object:
+    allOf:
+      - $ref: '#/db-properties/property-object'
+      - type: object
+        properties:
+          number:
+            type: object
+            properties:
+              format:
+                $ref: 'Common.yaml#/enums/number-types'
+  select-property-object:
+    allOf:
+      - $ref: '#/db-properties/property-object'
+      - type: object
+        properties:
+          options:
+            type: array
+            items:
+              $ref: '#/db-properties/selectable-object'
+  status-property-object:
+    allOf:
+      - $ref: '#/db-properties/property-object'
+      - type: object
+        properties:
+          options:
+            type: array
+            items:
+              $ref: '#/db-properties/selectable-object'
+          groups:
+            type: array
+            items:
+              allOf: 
+                - $ref: '#/db-properties/selectable-object'
+                - type: object
+                  properties:
+                    option_ids:
+                      type: array
+                      items: string
+  selectable-object:
+    type: object
+    properties:
+      name:
+        type: string
+      id:
+        type: string
+      color:
+        $ref: 'Common.yaml#/enums/select-colors'                

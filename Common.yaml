@@ -1,0 +1,600 @@
+notion-object:
+  type: object
+  discriminator:
+    propertyName: object
+    mapping: 
+      user: 'User.yaml#/user-object'
+      page: 'Page.yaml#/page-object'
+      property-item: 'Page.yaml#/page-property-items/single-property-item'
+      block: 'Block.yaml#/block-object'
+  properties:
+    object:
+      type: string
+      enum:
+        - database
+        - page
+        - user
+        - block
+        - property-item
+    id:
+      allOf:
+        - $ref: '#/id/id-type'
+      readOnly: true
+
+emoji-object:
+  type: object
+  properties:
+    type:
+      type: string
+      enum:
+        - emoji
+    emoji:
+      type: string
+
+icon-object:
+  oneOf:
+    - $ref: '#/file/external-file-object'
+    - $ref: '#/emoji-object'
+
+file:
+  file-object:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        file: '#/file/notion-file-object'
+        external: '#/file/external-file-object'
+    properties:
+      type:
+        type: string
+        enum:
+        - external
+        - file
+      name:
+        type: string
+  external-file-object:
+    allOf:
+    - $ref: '#/file/file-object'
+    - type: object
+      properties:
+        external:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+  notion-file-object:
+    allOf:
+    - $ref: '#/file/file-object'
+    - type: object
+      properties:
+        file:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            expiry_time:
+              type: string
+              format: date-time
+
+id:
+  id-reference:
+    type: object
+    properties:
+      id:
+        $ref: '#/id/id-type'
+  id-type:
+    type: string
+    format: uuid
+
+parent:
+  parent-object:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        database_id: '#/parent/database-parent-object'
+        page_id: '#/parent/page-parent-object'
+        workspace: '#/parent/workspace-parent-object'
+        block_id: '#/parent/block-parent-object'
+    properties:
+      type:
+        type: string
+        enum:
+          - database_id
+          - page_id
+          - workspace
+          - block_id 
+  workspace-parent-object:
+    allOf:
+      - $ref: '#/parent/parent-object'
+      - type: object
+        properties:
+          type:
+            default: workspace
+          workspace:
+            type: boolean
+            enum: [true]
+  page-parent-object:
+    allOf:
+      - $ref: '#/parent/parent-object'
+      - type: object
+        properties:
+          type:
+            default: page_id
+          page_id:
+            $ref: '#/id/id-type'
+  database-parent-object:
+    allOf:
+      - $ref: '#/parent/parent-object'
+      - type: object
+        properties:
+          type: 
+            default: database_id
+          database_id:
+            $ref: '#/id/id-type'
+  block-parent-object:
+    allOf:
+      - $ref: '#/parent/parent-object'
+      - type: object
+        properties:
+          type:
+            default: block_id
+          block_id:
+            $ref: '#/id/id-type'
+
+owner:
+  owner-object:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        user: '#/owner/user-owner'
+        workspace: '#/owner/workspace-owner'
+    properties:
+      type:
+        type: string
+        enum:
+        - user
+        - workspace
+  workspace-owner:
+    allOf:
+    - $ref: '#/owner/owner-object'
+    - type: object
+      properties:
+        type:
+          default: workspace
+        workspace:
+          type: boolean
+          enum: [true]
+  user-owner:
+    allOf:
+    - $ref: '#/owner/owner-object'
+    - type: object
+      properties:
+        type:
+          default: user
+        user:
+          $ref: 'User.yaml#/person-object'
+
+rich_text-object:
+  type: object
+  discriminator:
+    propertyName: type
+    mapping:
+      text: '#/text-object'
+      mention: '#/mention/parent-mention-object'
+      equation: '#/equation-object'
+  properties:
+    plain_text: 
+      type: string
+    href: 
+      type: string
+      format: uri
+    annotations:
+      $ref: '#/annotations'
+    type:
+      type: string
+      enum:
+      - text
+      - mention
+      - equation
+
+text-object:
+  allOf:
+  - $ref: '#/rich_text-object'
+  - type: object
+    properties:
+      type:
+        default: text
+      text:
+        type: object
+        properties:
+          content:
+            type: string
+          link:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [ url ]
+              url:
+                type: string
+                format: uri
+
+equation-object:
+  allOf:
+  - $ref: '#/rich_text-object'
+  - type: object
+    properties:
+      type:
+        default: equation
+      expression:
+        type: string
+
+annotations:
+  type: object
+  properties:
+    bold:
+      type: boolean
+    italic:
+      type: boolean
+    strikethrough:
+      type: boolean
+    underline:
+      type: boolean
+    code:
+      type: boolean
+    color:
+      $ref: '#/enums/colors'
+
+date-object:
+  type: object
+  properties:
+    start:
+      type: string
+      format: date-time
+    end:
+      type: string
+      format: date-time
+    time_zone:
+      type: string
+      enum:
+      - America/Los_Angeles
+
+mention:
+  mention-object:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        user: '#/mention/user-mention'
+        page: '#/mention/page-mention'
+        database: '#/mention/database-mention'
+        date: '#/mention/date-mention'
+        template: '#/mention/template-mention'
+        link_preview: '#/mention/link-preview-mention'
+    properties:
+      type:
+        type: string
+        enum:
+          - user
+          - page
+          - database
+          - date
+          - template
+          - link_preview
+          
+  parent-mention-object:
+    allOf:
+    - $ref: '#/rich_text-object'
+    - type: object
+      properties:
+        type:
+          default: mention
+        mention:
+          $ref: '#/mention/mention-object'
+
+  date-mention:
+    allOf:
+    - $ref: '#/mention/mention-object'
+    - type: object
+      properties:
+        type:
+          default: date
+        date:
+          $ref: 'Page.yaml#/page-properties/date-property-value'
+  template-mention-parent:
+    allOf:
+    - $ref: '#/mention/mention-object'
+    - type: object
+      properties:
+        type:
+          default: template
+        template-mention:
+          $ref: '#/mention/template-mention'
+  template-mention:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        template_mention_date: '#/mention/template-mention-date'
+        template_mention_user: '#/mention/template-mention-user'
+    properties:
+      type:
+        type: string
+        enum:
+          - template_mention_date
+          - template_mention_user
+  template-mention-date:
+    allOf:
+      - $ref: '#/mention/template-mention'
+      - type: object
+        properties:
+          type:
+            default: template_mention_date
+          template_mention_date:
+            type: string
+            enum:
+              - today
+              - now
+  template-mention-user:
+    allOf:
+      - $ref: '#/mention/template-mention'
+      - type: object
+        properties:
+          type:
+            default: template_mention_user
+          template_mention_user:
+            type: string
+            enum:
+              - me
+  link-preview-mention:
+    allOf:
+    - $ref: '#/mention/mention-object'
+    - type: object
+      properties:
+        type:
+          default: link_preview
+        url:
+          type: string
+          format: uri
+  database-mention:
+    allOf:
+    - $ref: '#/mention/mention-object'
+    - type: object
+      properties:
+        type:
+          default: database
+        database:
+          $ref: '#/id/id-reference'
+  page-mention:
+    allOf:
+    - $ref: '#/mention/mention-object'
+    - type: object
+      properties:
+        type:
+          default: page
+        page:
+          $ref: '#/id/id-reference'
+  user-mention:
+    allOf:
+    - $ref: '#/mention/mention-object'
+    - type: object
+      properties:
+        type:
+          default: user
+        user:
+          $ref: 'User.yaml#/user-object'
+
+enums:
+  colors:
+    type: string
+    enum:
+      - default
+      - gray
+      - brown
+      - orange
+      - yellow
+      - green
+      - blue
+      - purple
+      - pink
+      - red
+      - gray_background
+      - brown_background
+      - orange_background
+      - yellow_background
+      - green_background
+      - blue_background
+      - purple_background
+      - pink_background
+      - red_background
+  block-types:
+    type: string
+    enum:
+    - paragraph
+    - heading_1
+    - heading_2
+    - heading_3
+    - bulleted_list_item
+    - numbered_list_item
+    - to_do
+    - toggle
+    - child_page
+    - child_database
+    - embed
+    - image
+    - video
+    - file
+    - pdf
+    - bookmark
+    - callout
+    - quote
+    - equation
+    - divider
+    - table_of_contents
+    - column
+    - column_list
+    - link_preview
+    - synced_block
+    - template
+    - link_to_page
+    - table
+    - table_row
+    - unsupported
+  code-languages:
+    type: string
+    enum:
+      - abap
+      - arduino
+      - bash
+      - basic
+      - c
+      - clojure
+      - coffeescript
+      - c++
+      - c#
+      - css
+      - dart
+      - diff
+      - docker
+      - elixir
+      - elm
+      - erlang
+      - flow
+      - fortran
+      - f#
+      - gherkin
+      - glsl
+      - go
+      - graphql
+      - groovy
+      - haskell
+      - html
+      - java
+      - javascript
+      - json
+      - julia
+      - kotlin
+      - latex
+      - less
+      - lisp
+      - livescript
+      - lua
+      - makefile
+      - markdown
+      - markup
+      - matlab
+      - mermaid
+      - nix
+      - objective-c
+      - ocaml
+      - pascal
+      - perl
+      - php
+      - plain text
+      - powershell
+      - prolog
+      - protobuf
+      - python
+      - r
+      - reason
+      - ruby
+      - rust
+      - sass
+      - scala
+      - scheme
+      - scss
+      - shell
+      - sql
+      - swift
+      - typescript
+      - vb.net
+      - verilog
+      - vhdl
+      - visual basic
+      - webassembly
+      - xml
+      - yaml
+      - java/c/c++/c#
+  property-types:
+    type: string
+    enum:
+      - rich_text
+      - number
+      - select
+      - multi_select
+      - status
+      - date
+      - formula
+      - relation
+      - rollup
+      - title
+      - people
+      - files
+      - checkbox
+      - url
+      - email
+      - phone_number
+      - created_time
+      - created_by
+      - last_edited_time
+      - last_edited_by
+  number-types:
+    type: string
+    enum:
+      - number
+      - number_with_commas
+      - percent
+      - dollar
+      - canadian_dollar
+      - euro
+      - pound
+      - yen
+      - ruble
+      - rupee
+      - won
+      - yuan
+      - real
+      - lira
+      - rupiah
+      - franc
+      - hong_kong_dollar
+      - new_zealand_dollar
+      - krona
+      - norwegian_krone
+      - mexican_peso
+      - rand
+      - new_taiwan_dollar
+      - danish_krone
+      - zloty
+      - baht
+      - forint
+      - koruna
+      - shekel
+      - chilean_peso
+      - philippine_peso
+      - dirham
+      - colombian_peso
+      - riyal
+      - ringgit
+      - leu
+      - argentine_peso
+      - uruguayan_peso
+      - singapore_dollar
+  select-colors:
+    type: string
+    enum:
+      - red
+      - default
+      - gray
+      - brown
+      - red_background
+      - orange
+      - yellow
+      - green
+      - blue
+      - purple
+      - pink
